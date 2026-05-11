@@ -26,3 +26,9 @@ pub struct DailyForecastItem {
     pub precipitation_probability_max: i32,
     pub wind_speed_max: f64,
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct WeatherData {
+    pub current: CurrentWeather,
+    pub daily: Vec<DailyForecastItem>,
+}
