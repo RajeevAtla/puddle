@@ -40,7 +40,7 @@ pub fn WeatherPage() -> Element {
             h1 { class: "text-2xl font-bold", "Weather" }
             SearchBar {
                 query: query(),
-                on_input: move |e| query.set(e.value()),
+                on_input: move |e: FormEvent| query.set(e.value()),
                 on_submit,
             }
             {
@@ -51,8 +51,9 @@ pub fn WeatherPage() -> Element {
             }
             {
                 match weather() {
-                    Some(data) => rsx! { CurrentWeatherCard { weather: data, unit: "F".to_string() } },
+                    Some(Some(data)) => rsx! { CurrentWeatherCard { weather: data, unit: "F".to_string() } },
                     None => rsx! { StatusBanner { message: "Loading weather...".to_string(), error: false } },
+                    Some(None) => rsx! { StatusBanner { message: "No weather data available".to_string(), error: true } },
                 }
             }
         }
