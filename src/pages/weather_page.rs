@@ -1,11 +1,12 @@
 use dioxus::prelude::*;
 
 use crate::components::current_weather::CurrentWeatherCard;
+use crate::components::forecast_list::ForecastList;
 use crate::components::search_bar::SearchBar;
 use crate::components::status_banner::StatusBanner;
 use crate::models::location::Location;
 use crate::models::weather::UnitSystem;
-use crate::services::open_meteo::{fetch_current_weather, search_locations};
+use crate::services::open_meteo::{fetch_weather, search_locations};
 
 #[component]
 pub fn WeatherPage() -> Element {
@@ -18,7 +19,7 @@ pub fn WeatherPage() -> Element {
         let unit_system = units();
         async move {
             match location {
-                Some(item) => fetch_current_weather(&item, unit_system).await.ok(),
+                Some(item) => fetch_weather(&item, unit_system).await.ok(),
                 None => None,
             }
         }
@@ -51,7 +52,10 @@ pub fn WeatherPage() -> Element {
             }
             {
                 match weather() {
-                    Some(Some(data)) => rsx! { CurrentWeatherCard { weather: data, unit: "F".to_string() } },
+                    Some(Some(data)) => rsx! {
+                        CurrentWeatherCard { weather: data.current, unit: "F".to_string() }
+                        ForecastList { items: data.daily, unit: "F".to_string() }
+                    },
                     None => rsx! { StatusBanner { message: "Loading weather...".to_string(), error: false } },
                     Some(None) => rsx! { StatusBanner { message: "No weather data available".to_string(), error: true } },
                 }
