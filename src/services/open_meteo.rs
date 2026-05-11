@@ -2,6 +2,8 @@ use crate::error::WeatherError;
 use crate::models::location::Location;
 use crate::models::open_meteo_dto::{ForecastResponse, GeocodingResponse};
 use crate::models::weather::{UnitSystem, WeatherData};
+use crate::services::cache;
+use std::time::Duration;
 
 const GEO_URL: &str = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL: &str = "https://api.open-meteo.com/v1/forecast";
@@ -20,6 +22,15 @@ pub async fn fetch_weather(
     location: &Location,
     unit_system: UnitSystem,
 ) -> Result<WeatherData, WeatherError> {
+    let cache_key = format!(
+        "forecast:{}:{}:{:?}",
+        location.latitude, location.longitude, unit_system
+    );
+    if let Some(raw) = cache::get(&cache_key, Duration::from_secs(900)) {
+        if let Ok(cached) = serde_json::from_str::<WeatherData>(&raw) {
+            return Ok(cached);
+        }
+    }
     let (temperature_unit, wind_speed_unit, precipitation_unit) = match unit_system {
         UnitSystem::Imperial => ("fahrenheit", "mph", "inch"),
         UnitSystem::Metric => ("celsius", "kmh", "mm"),
@@ -29,8 +40,12 @@ pub async fn fetch_weather(
         location.latitude, location.longitude
     );
     let payload: ForecastResponse = reqwest::get(url).await?.json().await?;
-    Ok(WeatherData {
+    let data = WeatherData {
         current: payload.current.into(),
         daily: payload.daily.into_items(),
-    })
+    };
+    if let Ok(raw) = serde_json::to_string(&data) {
+        cache::set(cache_key, raw);
+    }
+    Ok(data)
 }
