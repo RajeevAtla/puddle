@@ -1,10 +1,12 @@
-#[derive(Debug, Clone, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub enum UnitSystem {
     Imperial,
     Metric,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct CurrentWeather {
     pub time: String,
     pub temperature: f64,
@@ -16,7 +18,7 @@ pub struct CurrentWeather {
     pub precipitation: f64,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DailyForecastItem {
     pub date: String,
     pub weather_code: i32,
@@ -27,7 +29,7 @@ pub struct DailyForecastItem {
     pub wind_speed_max: f64,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct WeatherData {
     pub current: CurrentWeather,
     pub daily: Vec<DailyForecastItem>,
