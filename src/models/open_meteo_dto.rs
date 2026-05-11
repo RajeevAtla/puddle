@@ -1,6 +1,9 @@
 use serde::Deserialize;
 
-use crate::models::{location::Location, weather::CurrentWeather};
+use crate::models::{
+    location::Location,
+    weather::{CurrentWeather, DailyForecastItem},
+};
 
 #[derive(Debug, Deserialize)]
 pub struct GeocodingResponse {
@@ -35,6 +38,7 @@ impl From<GeocodingResult> for Location {
 #[derive(Debug, Deserialize)]
 pub struct ForecastResponse {
     pub current: ForecastCurrent,
+    pub daily: ForecastDaily,
 }
 
 #[derive(Debug, Deserialize)]
@@ -49,6 +53,17 @@ pub struct ForecastCurrent {
     pub precipitation: f64,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ForecastDaily {
+    pub time: Vec<String>,
+    pub weather_code: Vec<i32>,
+    pub temperature_2m_max: Vec<f64>,
+    pub temperature_2m_min: Vec<f64>,
+    pub precipitation_sum: Vec<f64>,
+    pub precipitation_probability_max: Vec<i32>,
+    pub wind_speed_10m_max: Vec<f64>,
+}
+
 impl From<ForecastCurrent> for CurrentWeather {
     fn from(value: ForecastCurrent) -> Self {
         Self {
@@ -61,5 +76,28 @@ impl From<ForecastCurrent> for CurrentWeather {
             wind_direction: value.wind_direction_10m,
             precipitation: value.precipitation,
         }
+    }
+}
+
+impl ForecastDaily {
+    pub fn into_items(self) -> Vec<DailyForecastItem> {
+        self.time
+            .into_iter()
+            .zip(self.weather_code)
+            .zip(self.temperature_2m_max)
+            .zip(self.temperature_2m_min)
+            .zip(self.precipitation_sum)
+            .zip(self.precipitation_probability_max)
+            .zip(self.wind_speed_10m_max)
+            .map(|((((((date, weather_code), temp_max), temp_min), precipitation_sum), precipitation_probability_max), wind_speed_max)| DailyForecastItem {
+                date,
+                weather_code,
+                temp_max,
+                temp_min,
+                precipitation_sum,
+                precipitation_probability_max,
+                wind_speed_max,
+            })
+            .collect()
     }
 }
