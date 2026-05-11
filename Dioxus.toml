@@ -1,15 +1,19 @@
 [application]
+name = "puddle"
+out_dir = "dist"
+asset_dir = "assets"
 
 [web.app]
 
 # HTML title tag content
 title = "puddle"
+base_path = "puddle"
 
 # include `assets` in web platform
 [web.resource]
 
 # Additional CSS style files
-style = []
+style = ["./tailwind.css"]
 
 # Additional JavaScript files
 script = []
