@@ -21,21 +21,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Dioxus CLI
-        run: cargo install dioxus-cli
+        run: cargo install dioxus-cli --version 0.7.9 --locked
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Tailwind
-        run: npm install --no-save tailwindcss
+          cache: npm
+      - name: Install JavaScript dependencies
+        run: npm ci
       - name: Build Tailwind CSS
-        run: npx tailwindcss -i ./assets/input.css -o ./assets/tailwind.css --minify
+        run: npm run build:css
       - name: Build Dioxus app
-        run: dx build --platform web --release
-      - name: SPA fallback and no-jekyll
-        run: cp dist/index.html dist/404.html && touch dist/.nojekyll
+        run: dx build --platform web --release --locked
+      - name: Prepare Pages artifact
+        run: |
+          test -s target/dx/puddle/release/web/public/index.html
+          cp target/dx/puddle/release/web/public/index.html target/dx/puddle/release/web/public/404.html
+          touch target/dx/puddle/release/web/public/.nojekyll
+          test -s target/dx/puddle/release/web/public/404.html
+          test -f target/dx/puddle/release/web/public/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: target/dx/puddle/release/web/public
 
   deploy:
     needs: build

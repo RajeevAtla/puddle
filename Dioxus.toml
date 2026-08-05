@@ -12,8 +12,8 @@ base_path = "puddle"
 # include `assets` in web platform
 [web.resource]
 
-# Additional CSS style files
-style = ["./tailwind.css"]
+# App-linked assets provide the stylesheets.
+style = []
 
 # Additional JavaScript files
 script = []

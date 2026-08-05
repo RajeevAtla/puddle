@@ -1,0 +1,16 @@
+{
+  "name": "puddle",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss --config ./tailwind.config.js --input ./assets/input.css --output ./assets/tailwind.css --minify",
+    "build:web": "npm run build:css && dx build --platform web --release --locked",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "tailwindcss": "3.4.17"
+  }
+}
